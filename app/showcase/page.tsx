@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileText, LayoutDashboard, Download, ChevronLeft, ChevronRight, Sparkles, CheckCircle, Home } from "lucide-react";
+import { FileText, LayoutDashboard, Download, ChevronLeft, ChevronRight, Sparkles, CheckCircle, Home, ExternalLink } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import confetti from "canvas-confetti";
@@ -12,6 +12,7 @@ interface Item {
     path: string;
     description: string;
     type: "publication" | "dashboard";
+    link?: string;
 }
 
 const allItems: Item[] = [
@@ -37,13 +38,15 @@ const allItems: Item[] = [
         name: "Bureau of Statistics Dashboard",
         path: "/Dashboards/bos-dashboard.PNG",
         description: "Interactive real-time dashboard for Bureau of Statistics data visualization and analytics",
-        type: "dashboard"
+        type: "dashboard",
+        link: "https://bospnd.balochistan.gov.pk/"
     },
     {
         name: "PSDP Dashboard",
         path: "/Dashboards/psdp-dashboard.PNG",
         description: "Public Sector Development Programme monitoring, tracking, and performance analytics platform",
-        type: "dashboard"
+        type: "dashboard",
+        link: "https://psdp.pnd.balochistan.gov.pk/"
     }
 ];
 
@@ -307,22 +310,26 @@ export default function ShowcasePage() {
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.5 }}
-                                    className="flex items-center gap-4"
                                 >
-                                    <button
-                                        onClick={() => handleDownload(currentItem)}
-                                        className="group flex items-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 transition-all duration-300 shadow-lg shadow-green-500/30 hover:shadow-green-500/50 hover:scale-105"
-                                    >
-                                        <Download className="w-5 h-5" />
-                                        <span className="font-semibold">Download</span>
-                                    </button>
-
-                                    <Link href="/">
-                                        <button className="group flex items-center gap-3 px-6 py-4 rounded-2xl bg-neutral-800/50 backdrop-blur-xl border border-white/10 hover:border-green-500/50 hover:bg-neutral-800 transition-all duration-300">
-                                            <Home className="w-5 h-5 text-neutral-400 group-hover:text-green-400 transition-colors" />
-                                            <span className="font-semibold text-neutral-400 group-hover:text-white transition-colors">Home</span>
+                                    {currentItem.type === "publication" ? (
+                                        <button
+                                            disabled
+                                            className="group flex items-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 opacity-50 cursor-not-allowed transition-all duration-300 w-full"
+                                        >
+                                            <Download className="w-5 h-5" />
+                                            <span className="font-semibold">Download</span>
                                         </button>
-                                    </Link>
+                                    ) : (
+                                        <a
+                                            href={currentItem.link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="group flex items-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 transition-all duration-300 shadow-lg shadow-green-500/30 hover:shadow-green-500/50 hover:scale-105"
+                                        >
+                                            <ExternalLink className="w-5 h-5" />
+                                            <span className="font-semibold">Visit Dashboard</span>
+                                        </a>
+                                    )}
                                 </motion.div>
 
                                 {/* Progress Indicator */}
