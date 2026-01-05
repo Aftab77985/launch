@@ -18,19 +18,19 @@ interface Item {
 const allItems: Item[] = [
     {
         name: "Balochistan Development Profile",
-        path: "/publications/Balochistan Development Profile .jpeg",
+        path: "/publications/BalochistanDevelopmentProfile.jpeg",
         description: "Comprehensive overview of development initiatives and progress across all districts of Balochistan province",
         type: "publication"
     },
     {
         name: "Development Statistics 2024",
-        path: "/publications/Development statistics of Balochistan 2024 .jpeg",
+        path: "/publications/DevelopmentstatisticsofBalochistan2024.jpeg",
         description: "Latest statistical data, metrics, and key performance indicators for Balochistan's development sectors",
         type: "publication"
     },
     {
         name: "Trends Analysis Report",
-        path: "/publications/Trends Analysis of Development Statistics of Balochistan.jpeg",
+        path: "/publications/TrendsAnalysisofDevelopmentStatisticsofBalochistan.jpeg",
         description: "In-depth analysis of development trends, patterns, and projections for strategic planning",
         type: "publication"
     },
