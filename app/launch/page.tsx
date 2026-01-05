@@ -142,7 +142,7 @@ export default function LaunchPage() {
     }, [startHolding, stopHolding]);
 
     return (
-        <div className="h-screen bg-gradient-to-br from-[#030303] via-[#050505] to-[#0a0a0a] text-white flex flex-col items-center justify-between py-6 md:py-8 relative overflow-hidden font-sans selection:bg-green-500/30">
+        <div className="h-screen bg-linear-to-br from-[#030303] via-[#050505] to-[#0a0a0a] text-white flex flex-col items-center justify-between py-6 md:py-8 relative overflow-hidden font-sans selection:bg-green-500/30">
             {/* Static Gradient Background - optimized for performance */}
             <div
                 className="absolute inset-0 opacity-30 pointer-events-none"
