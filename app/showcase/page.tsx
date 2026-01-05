@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileText, LayoutDashboard, Download, ChevronLeft, ChevronRight, Sparkles, CheckCircle, Home, ExternalLink } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import confetti from "canvas-confetti";
 
@@ -238,14 +237,12 @@ export default function ShowcasePage() {
                                     opacity: { duration: 0.3 },
                                     scale: { duration: 0.3 },
                                 }}
-                                className="relative w-full h-[70vh] rounded-3xl overflow-hidden shadow-2xl shadow-black/50 border border-white/10"
+                                className="relative w-full h-[70vh] rounded-3xl overflow-hidden shadow-2xl shadow-black/50 border border-white/10 bg-neutral-900/50"
                             >
-                                <Image
+                                <img
                                     src={currentItem.path}
                                     alt={currentItem.name}
-                                    fill
-                                    className="object-contain bg-neutral-900/50"
-                                    priority
+                                    className="w-full h-full object-contain"
                                 />
 
                                 {/* Image Overlay Gradient */}
