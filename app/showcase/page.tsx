@@ -35,14 +35,14 @@ const allItems: Item[] = [
     },
     {
         name: "Bureau of Statistics Dashboard",
-        path: "/Dashboards/bos-dashboard.PNG",
+        path: "/dashboards/bos-dashboard.PNG",
         description: "Interactive real-time dashboard for Bureau of Statistics data visualization and analytics",
         type: "dashboard",
         link: "https://bospnd.balochistan.gov.pk/"
     },
     {
         name: "PSDP Dashboard",
-        path: "/Dashboards/psdp-dashboard.PNG",
+        path: "/dashboards/psdp-dashboard.PNG",
         description: "Public Sector Development Programme monitoring, tracking, and performance analytics platform",
         type: "dashboard",
         link: "https://psdp.pnd.balochistan.gov.pk/"
