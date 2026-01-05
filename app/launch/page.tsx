@@ -152,10 +152,10 @@ export default function LaunchPage() {
             />
 
             {/* Noise Texture */}
-            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-40 pointer-events-none mix-blend-overlay" />
+            <div className="absolute inset-0 bgjhgju-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-40 pointer-events-none mix-blend-overlay" />
 
             {/* Grid Pattern - static for performance */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808018_1px,transparent_1px),linear-gradient(to_bottom,#80808018_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_50%,#000_40%,transparent_100%)] pointer-events-none opacity-40" />
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808018_1px,transparent_1px),linear-gradient(to_bottom,#80808018_1px,transparent_1px)] bg-size-[32px_32px] mask-[radial-gradient(ellipse_70%_60%_at_50%_50%,#000_40%,transparent_100%)] pointer-events-none opacity-40" />
 
             {/* Floating Orbs - reduced count for performance */}
             {[...Array(3)].map((_, i) => (
@@ -174,11 +174,11 @@ export default function LaunchPage() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, ease: "easeOut" }}
-                className="relative z-10 flex flex-col items-center gap-4 flex-shrink-0"
+                className="relative z-10 flex flex-col items-center gap-4 shrink-0"
             >
                 <div className="relative group">
                     {/* Static glow effect */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-500/15 blur-2xl rounded-full" />
+                    <div className="absolute inset-0 bg-linear-to-brrom-green-500/20 to-emerald-500/15 blur-2xl rounded-full" />
 
                     <img
                         src="https://cdn.bospnd.balochistan.gov.pk/assets/gob-logo.png"
@@ -190,7 +190,7 @@ export default function LaunchPage() {
                 <div className="flex flex-col items-center gap-2">
                     <div className="flex flex-col items-center">
                         <motion.h1
-                            className="text-2xl md:text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/40 text-center px-4 uppercase"
+                            className="text-2xl md:text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-linear-to-b from-white via-white to-white/40 text-center px-4 uppercase"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.3, duration: 0.8 }}
@@ -199,7 +199,7 @@ export default function LaunchPage() {
                         </motion.h1>
 
                         <motion.div
-                            className="h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent rounded-full mt-3 mb-2"
+                            className="h-1 bg-linear-to-rrom-transparent via-green-500 to-transparent rounded-full mt-3 mb-2"
                             initial={{ width: 0, opacity: 0 }}
                             animate={{ width: 80, opacity: 0.6 }}
                             transition={{ delay: 0.6, duration: 0.8 }}
@@ -237,7 +237,7 @@ export default function LaunchPage() {
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.8 }}
                             >
-                                <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-green-500/20 to-emerald-500/20 backdrop-blur-xl border border-green-400/30 rounded-2xl shadow-lg shadow-green-500/20">
+                                <div className="flex items-center gap-2 px-4 py-2 bg-linear-to-br from-green-500/20 to-emerald-500/20 backdrop-blur-xl border border-green-400/30 rounded-2xl shadow-lg shadow-green-500/20">
                                     <Rocket className="w-4 h-4 text-green-400" />
                                     <motion.span
                                         key={remainingTime}
@@ -261,7 +261,7 @@ export default function LaunchPage() {
                                 scale: isHolding ? 1.2 : 1,
                             }}
                             transition={{ duration: 0.5 }}
-                            className="absolute inset-0 bg-gradient-to-br from-green-500/40 via-emerald-500/30 to-lime-500/40 blur-[80px] rounded-full"
+                            className="absolute inset-0 bg-linear-to-brrom-green-500/40 via-emerald-500/30 to-lime-500/40 blur-[80px] rounded-full"
                         />
 
                         {/* Multi-layer Progress Rings */}
@@ -353,10 +353,10 @@ export default function LaunchPage() {
                                 relative w-56 h-56 md:w-64 md:h-64 rounded-full flex flex-col items-center justify-center
                                 backdrop-blur-2xl border-2 transition-all duration-300 ease-out overflow-hidden
                                 ${isHolding
-                                    ? "bg-gradient-to-br from-green-950/40 via-emerald-950/30 to-green-950/40 border-green-400/60 shadow-[0_0_60px_rgba(34,197,94,0.4),inset_0_0_60px_rgba(34,197,94,0.1)]"
-                                    : "bg-gradient-to-br from-neutral-900/60 via-neutral-800/50 to-neutral-900/60 border-white/10 hover:border-green-500/30 hover:bg-gradient-to-br hover:from-neutral-900/80 hover:via-neutral-800/70 hover:to-neutral-900/80 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
+                                    ? "bg-linear-to-br from-green-950/40 via-emerald-950/30 to-green-950/40 border-green-400/60 shadow-[0_0_60px_rgba(34,197,94,0.4),inset_0_0_60px_rgba(34,197,94,0.1)]"
+                                    : "bg-linear-to-br from-neutral-900/60 via-neutral-800/50 to-neutral-900/60 border-white/10 hover:border-green-500/30 hover:bg-linear-to-br hover:from-neutral-900/80 hover:via-neutral-800/70 hover:to-neutral-900/80 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
                                 }
-                                ${isLaunched ? "bg-gradient-to-br from-green-500 via-emerald-500 to-green-600 border-green-300 scale-110 shadow-[0_0_100px_rgba(34,197,94,0.8)]" : ""}
+                                ${isLaunched ? "bg-linear-to-br from-green-500 via-emerald-500 to-green-600 border-green-300 scale-110 shadow-[0_0_100px_rgba(34,197,94,0.8)]" : ""}
                             `}
                         >
                         {/* Inner glow ring */}
@@ -387,8 +387,8 @@ export default function LaunchPage() {
                                             className={`
                                                 relative p-6 md:p-8 rounded-full transition-all duration-300 ease-out
                                                 ${isHolding
-                                                    ? "bg-gradient-to-br from-green-400 via-green-500 to-emerald-500 text-black shadow-[0_0_40px_rgba(34,197,94,0.6)]"
-                                                    : "bg-gradient-to-br from-white/10 to-white/5 text-white/80 shadow-[0_8px_16px_rgba(0,0,0,0.3)]"
+                                                    ? "bg-linear-to-brrom-green-400 via-green-500 to-emerald-500 text-black shadow-[0_0_40px_rgba(34,197,94,0.6)]"
+                                                    : "bg-linear-to-br from-white/10 to-white/5 text-white/80 shadow-[0_8px_16px_rgba(0,0,0,0.3)]"
                                                 }
                                             `}
                                         >
@@ -409,7 +409,7 @@ export default function LaunchPage() {
                                         transition={{ type: "spring", stiffness: 200, damping: 15 }}
                                         className="flex flex-col items-center gap-4 z-10"
                                     >
-                                        <div className="relative p-5 md:p-6 rounded-full bg-gradient-to-br from-white via-green-50 to-white text-green-600 shadow-[0_0_50px_rgba(34,197,94,0.7)]">
+                                        <div className="relative p-5 md:p-6 rounded-full bg-linear-to-brrom-white via-green-50 to-white text-green-600 shadow-[0_0_50px_rgba(34,197,94,0.7)]">
                                             <CheckCircle2 className="w-11 h-11 md:w-12 md:h-12 relative z-10" strokeWidth={3} />
                                         </div>
 
@@ -433,14 +433,14 @@ export default function LaunchPage() {
 
             {/* Footer - simplified for performance */}
             <motion.div
-                className="relative z-10 text-center flex-shrink-0"
+                className="relative z-10 text-center shrink-0"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.2, duration: 0.8 }}
             >
                 <div className="flex items-center gap-2 text-neutral-500 mb-2 justify-center">
                     <Sparkles className="w-3 h-3 text-green-500/70" />
-                    <span className="text-[10px] uppercase tracking-[0.25em] font-semibold bg-gradient-to-r from-neutral-400 via-green-400 to-neutral-400 bg-clip-text text-transparent">
+                    <span className="text-[10px] uppercase tracking-[0.25em] font-semibold bg-linear-to-rrom-neutral-400 via-green-400 to-neutral-400 bg-clip-text text-transparent">
                         System Ready
                     </span>
                     <Sparkles className="w-3 h-3 text-green-500/70" />
@@ -451,9 +451,9 @@ export default function LaunchPage() {
                         Dashboard and Publications Launch Event
                     </p>
                     <div className="flex items-center justify-center gap-2">
-                        <div className="h-px w-6 bg-gradient-to-r from-transparent to-green-500/30" />
+                        <div className="h-px w-6 bg-linear-to-r from-transparent to-green-500/30" />
                         <div className="w-1 h-1 rounded-full bg-green-500/50" />
-                        <div className="h-px w-6 bg-gradient-to-l from-transparent to-green-500/30" />
+                        <div className="h-px w-6 bg-linear-to-l from-transparent to-green-500/30" />
                     </div>
                 </div>
             </motion.div>
