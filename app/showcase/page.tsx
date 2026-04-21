@@ -1,14 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileText, LayoutDashboard, Download, ChevronLeft, ChevronRight, Sparkles, CheckCircle, Home, ExternalLink } from "lucide-react";
-import Link from "next/link";
+import {
+    FileText,
+    LayoutDashboard,
+    BookOpen,
+    ChevronLeft,
+    ChevronRight,
+    Sparkles,
+    ExternalLink,
+    X,
+    Download,
+    ZoomIn,
+    ZoomOut,
+} from "lucide-react";
 import confetti from "canvas-confetti";
 
 interface Item {
     name: string;
-    path: string;
+    previewPath: string;
+    pdfPath: string | null;
     description: string;
     type: "publication" | "dashboard";
     link?: string;
@@ -17,392 +29,466 @@ interface Item {
 const allItems: Item[] = [
     {
         name: "Balochistan Development Profile",
-        path: "/publications/BalochistanDevelopmentProfile.jpeg",
-        description: "Comprehensive overview of development initiatives and progress across all districts of Balochistan province",
-        type: "publication"
+        previewPath: "/publications/BalochistanDevelopmentProfile.jpeg",
+        pdfPath: "/published/BalochistanDevelopmentProfile.pdf",
+        description:
+            "Comprehensive overview of development initiatives and progress across all districts of Balochistan province.",
+        type: "publication",
     },
     {
         name: "Development Statistics 2024",
-        path: "/publications/DevelopmentstatisticsofBalochistan2024.jpeg",
-        description: "Latest statistical data, metrics, and key performance indicators for Balochistan's development sectors",
-        type: "publication"
+        previewPath: "/publications/DevelopmentstatisticsofBalochistan2024.jpeg",
+        pdfPath: "/published/DevelopmentstatisticsofBalochistan2024.pdf",
+        description:
+            "Latest statistical data, metrics, and key performance indicators for Balochistan's development sectors.",
+        type: "publication",
     },
     {
         name: "Trends Analysis Report",
-        path: "/publications/TrendsAnalysisofDevelopmentStatisticsofBalochistan.jpeg",
-        description: "In-depth analysis of development trends, patterns, and projections for strategic planning",
-        type: "publication"
+        previewPath: "/publications/TrendsAnalysisofDevelopmentStatisticsofBalochistan.jpeg",
+        pdfPath: "/published/TrendsAnalysisofDevelopmentStatisticsofBalochistan.pdf",
+        description:
+            "In-depth analysis of development trends, patterns, and projections for strategic planning.",
+        type: "publication",
     },
     {
         name: "Bureau of Statistics Dashboard",
-        path: "/dashboards/bos-dashboard.PNG",
-        description: "Interactive real-time dashboard for Bureau of Statistics data visualization and analytics",
+        previewPath: "/dashboards/bos-dashboard.PNG",
+        pdfPath: null,
+        description:
+            "Interactive real-time dashboard for Bureau of Statistics data visualization and analytics.",
         type: "dashboard",
-        link: "https://bospnd.balochistan.gov.pk/"
+        link: "https://bospnd.balochistan.gov.pk/",
     },
     {
         name: "PSDP Dashboard",
-        path: "/dashboards/psdp-dashboard.PNG",
-        description: "Public Sector Development Programme monitoring, tracking, and performance analytics platform",
+        previewPath: "/dashboards/psdp-dashboard.PNG",
+        pdfPath: null,
+        description:
+            "Public Sector Development Programme monitoring, tracking, and performance analytics platform.",
         type: "dashboard",
-        link: "https://psdp.pnd.balochistan.gov.pk/"
-    }
+        link: "https://psdp.pnd.balochistan.gov.pk/",
+    },
 ];
 
-export default function ShowcasePage() {
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [direction, setDirection] = useState(0);
-    const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+// ── PDF Viewer Modal ─────────────────────────────────────────────────────────
+function PdfModal({ item, onClose }: { item: Item; onClose: () => void }) {
+    const [scale, setScale] = useState(100);
 
-    const currentItem = allItems[currentIndex];
-
+    // Close on Escape
     useEffect(() => {
-        // Initial celebration confetti
-        const duration = 3000;
-        const animationEnd = Date.now() + duration;
-        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+        const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+        window.addEventListener("keydown", handler);
+        return () => window.removeEventListener("keydown", handler);
+    }, [onClose]);
 
-        function randomInRange(min: number, max: number) {
-            return Math.random() * (max - min) + min;
-        }
+    function download() {
+        if (!item.pdfPath) return;
+        const a = document.createElement("a");
+        a.href = item.pdfPath;
+        a.download = item.name + ".pdf";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
 
-        const interval = setInterval(function() {
-            const timeLeft = animationEnd - Date.now();
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-50 flex flex-col"
+            style={{ background: "rgba(1,6,4,0.96)", backdropFilter: "blur(20px)" }}
+        >
+            {/* Noise overlay */}
+            <div className="absolute inset-0 pointer-events-none opacity-20 mix-blend-overlay" style={{ backgroundImage: "url('https://grainy-gradients.vercel.app/noise.svg')" }} />
 
-            if (timeLeft <= 0) {
-                clearInterval(interval);
-                return;
-            }
+            {/* Top bar */}
+            <motion.div
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.1, duration: 0.35 }}
+                className="relative z-10 flex items-center justify-between px-6 py-3 border-b border-white/6 shrink-0"
+                style={{ background: "rgba(2,10,6,0.8)", backdropFilter: "blur(12px)" }}
+            >
+                {/* Title */}
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-green-500/15 border border-green-500/25">
+                        <FileText className="text-green-400" style={{ width: "clamp(0.85rem, 1.1vw, 1rem)", height: "clamp(0.85rem, 1.1vw, 1rem)" }} />
+                    </div>
+                    <div>
+                        <p className="font-semibold text-white" style={{ fontSize: "clamp(0.8rem, 1.3vw, 1.1rem)" }}>
+                            {item.name}
+                        </p>
+                        <p className="text-neutral-500 uppercase tracking-wider" style={{ fontSize: "clamp(0.45rem, 0.7vw, 0.62rem)" }}>
+                            Publication · Bureau of Statistics
+                        </p>
+                    </div>
+                </div>
 
-            const particleCount = 50 * (timeLeft / duration);
+                {/* Controls */}
+                <div className="flex items-center gap-2">
+                    {/* Zoom controls */}
+                    <div className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white/5 border border-white/8">
+                        <button
+                            onClick={() => setScale((s) => Math.max(50, s - 10))}
+                            className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-colors text-neutral-400 hover:text-white"
+                        >
+                            <ZoomOut style={{ width: "clamp(0.8rem, 1vw, 0.9rem)", height: "clamp(0.8rem, 1vw, 0.9rem)" }} />
+                        </button>
+                        <span className="text-neutral-400 tabular-nums font-mono px-1" style={{ fontSize: "clamp(0.6rem, 0.85vw, 0.78rem)" }}>
+                            {scale}%
+                        </span>
+                        <button
+                            onClick={() => setScale((s) => Math.min(200, s + 10))}
+                            className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-colors text-neutral-400 hover:text-white"
+                        >
+                            <ZoomIn style={{ width: "clamp(0.8rem, 1vw, 0.9rem)", height: "clamp(0.8rem, 1vw, 0.9rem)" }} />
+                        </button>
+                    </div>
 
-            confetti({
-                ...defaults,
-                particleCount,
-                origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
-                colors: ["#22c55e", "#10b981", "#84cc16"],
-            });
-            confetti({
-                ...defaults,
-                particleCount,
-                origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
-                colors: ["#22c55e", "#10b981", "#84cc16"],
-            });
-        }, 250);
+                    {/* Download */}
+                    <button
+                        onClick={download}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-green-500/15 border border-green-500/25 hover:bg-green-500/25 transition-all duration-200 text-green-300"
+                        style={{ fontSize: "clamp(0.6rem, 0.9vw, 0.8rem)" }}
+                    >
+                        <Download style={{ width: "clamp(0.75rem, 1vw, 0.9rem)", height: "clamp(0.75rem, 1vw, 0.9rem)" }} />
+                        <span className="font-medium">Download</span>
+                    </button>
 
-        return () => clearInterval(interval);
+                    {/* Close */}
+                    <button
+                        onClick={onClose}
+                        className="flex items-center justify-center w-9 h-9 rounded-xl bg-white/5 border border-white/8 hover:bg-red-500/15 hover:border-red-500/30 transition-all duration-200 text-neutral-400 hover:text-red-400"
+                    >
+                        <X style={{ width: "clamp(0.85rem, 1.1vw, 1rem)", height: "clamp(0.85rem, 1.1vw, 1rem)" }} />
+                    </button>
+                </div>
+            </motion.div>
+
+            {/* PDF iframe */}
+            <motion.div
+                initial={{ opacity: 0, scale: 0.97 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.15, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className="relative z-10 flex-1 overflow-hidden"
+                style={{ padding: "clamp(0.5rem, 1vmin, 1rem)" }}
+            >
+                <div className="w-full h-full rounded-2xl overflow-hidden border border-white/6" style={{ boxShadow: "0 0 0 1px rgba(34,197,94,0.06), inset 0 0 60px rgba(0,0,0,0.4)" }}>
+                    <iframe
+                        src={`${item.pdfPath}#zoom=${scale}`}
+                        className="w-full h-full"
+                        title={item.name}
+                        style={{ border: "none", background: "#1a1a1a" }}
+                    />
+                </div>
+            </motion.div>
+
+            {/* Bottom hint */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="relative z-10 flex items-center justify-center gap-2 py-2 shrink-0"
+            >
+                <span className="text-neutral-700 uppercase tracking-widest" style={{ fontSize: "clamp(0.42rem, 0.65vw, 0.6rem)" }}>
+                    Press Esc or click × to close
+                </span>
+            </motion.div>
+        </motion.div>
+    );
+}
+
+// ── Main Page ────────────────────────────────────────────────────────────────
+export default function ShowcasePage() {
+    const [idx, setIdx] = useState(0);
+    const [dir, setDir] = useState(0);
+    const [autoPlay, setAutoPlay] = useState(true);
+    const [pdfItem, setPdfItem] = useState<Item | null>(null);
+    const item = allItems[idx];
+
+    const closePdf = useCallback(() => setPdfItem(null), []);
+
+    // Celebration confetti on mount
+    useEffect(() => {
+        const duration = 4500;
+        const end = Date.now() + duration;
+        const rand = (a: number, b: number) => Math.random() * (b - a) + a;
+        const t = setInterval(() => {
+            const left = end - Date.now();
+            if (left <= 0) { clearInterval(t); return; }
+            const n = 55 * (left / duration);
+            const opts = { startVelocity: 32, spread: 360, ticks: 70, zIndex: 0 };
+            confetti({ ...opts, particleCount: n, origin: { x: rand(0.08, 0.28), y: Math.random() - 0.2 }, colors: ["#22c55e", "#10b981", "#84cc16", "#fff"] });
+            confetti({ ...opts, particleCount: n, origin: { x: rand(0.72, 0.92), y: Math.random() - 0.2 }, colors: ["#22c55e", "#10b981", "#84cc16", "#fff"] });
+        }, 230);
+        return () => clearInterval(t);
     }, []);
 
-    // Auto-play carousel
+    // Auto-advance (pause when pdf open)
     useEffect(() => {
-        if (!isAutoPlaying) return;
+        if (!autoPlay || pdfItem) return;
+        const t = setInterval(next, 6000);
+        return () => clearInterval(t);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [idx, autoPlay, pdfItem]);
 
-        const timer = setInterval(() => {
-            navigateNext();
-        }, 5000);
+    function prev() { setDir(-1); setIdx((p) => (p - 1 + allItems.length) % allItems.length); setAutoPlay(false); }
+    function next() { setDir(1); setIdx((p) => (p + 1) % allItems.length); }
 
-        return () => clearInterval(timer);
-    }, [currentIndex, isAutoPlaying]);
-
-    const navigatePrev = () => {
-        setDirection(-1);
-        setCurrentIndex((prev) => (prev - 1 + allItems.length) % allItems.length);
-        setIsAutoPlaying(false);
-    };
-
-    const navigateNext = () => {
-        setDirection(1);
-        setCurrentIndex((prev) => (prev + 1) % allItems.length);
-    };
-
-    const handleDownload = (item: Item) => {
-        const link = document.createElement('a');
-        link.href = item.path;
-        link.download = item.name;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-
-    const slideVariants = {
-        enter: (direction: number) => ({
-            x: direction > 0 ? '100%' : '-100%',
-            opacity: 0,
-            scale: 0.8,
-        }),
-        center: {
-            x: 0,
-            opacity: 1,
-            scale: 1,
-        },
-        exit: (direction: number) => ({
-            x: direction > 0 ? '-100%' : '100%',
-            opacity: 0,
-            scale: 0.8,
-        }),
+    const slideVars = {
+        enter: (d: number) => ({ x: d > 0 ? "105%" : "-105%", opacity: 0, scale: 0.9 }),
+        center: { x: 0, opacity: 1, scale: 1 },
+        exit: (d: number) => ({ x: d > 0 ? "-105%" : "105%", opacity: 0, scale: 0.9 }),
     };
 
     return (
-        <div className="h-screen bg-gradient-to-br from-[#030303] via-[#050505] to-[#0a0a0a] text-white relative overflow-hidden">
-            {/* Animated Background */}
-            <div className="absolute inset-0 pointer-events-none">
-                <motion.div
-                    className="absolute inset-0 opacity-20"
-                    animate={{
-                        background: [
-                            "radial-gradient(circle at 20% 50%, rgba(34, 197, 94, 0.15) 0%, transparent 50%)",
-                            "radial-gradient(circle at 80% 50%, rgba(16, 185, 129, 0.15) 0%, transparent 50%)",
-                            "radial-gradient(circle at 50% 80%, rgba(132, 204, 22, 0.15) 0%, transparent 50%)",
-                            "radial-gradient(circle at 20% 50%, rgba(34, 197, 94, 0.15) 0%, transparent 50%)",
-                        ]
-                    }}
-                    transition={{
-                        duration: 10,
-                        repeat: Infinity,
-                        ease: "linear"
-                    }}
-                />
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-40 mix-blend-overlay" />
+        <>
+            {/* PDF Viewer Modal */}
+            <AnimatePresence>
+                {pdfItem && <PdfModal item={pdfItem} onClose={closePdf} />}
+            </AnimatePresence>
 
-                {/* Floating Particles */}
-                {[...Array(6)].map((_, i) => {
-                    const positions = [
-                        [10 + i * 15, 25 + i * 12, 18 + i * 10],
-                        [35 + i * 10, 55 + i * 8, 45 + i * 9],
-                    ];
-                    return (
-                        <motion.div
-                            key={i}
-                            className="absolute w-2 h-2 bg-green-500/20 rounded-full blur-sm"
-                            style={{
-                                left: `${15 + i * 12}%`,
-                                top: `${20 + i * 12}%`,
-                            }}
-                            animate={{
-                                x: [`${positions[0][0]}vw`, `${positions[0][1]}vw`, `${positions[0][2]}vw`],
-                                y: [`${positions[1][0]}vh`, `${positions[1][1]}vh`, `${positions[1][2]}vh`],
-                                scale: [1, 1.8, 1],
-                                opacity: [0.2, 0.5, 0.2],
-                            }}
-                            transition={{
-                                duration: 18 + i * 3,
-                                repeat: Infinity,
-                                ease: "easeInOut",
-                                delay: i * 0.7,
-                            }}
-                        />
-                    );
-                })}
-            </div>
+            <div className="h-screen bg-[#020906] text-white relative overflow-hidden">
 
-            {/* Success Badge - Top Center */}
-            <motion.div
-                initial={{ opacity: 0, y: -20, scale: 0.8 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.3 }}
-                className="absolute top-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-xl border border-green-500/30"
-            >
+                {/* ── BACKGROUND ────────────────────────────────── */}
+                <div className="absolute inset-0 pointer-events-none">
+                    <motion.div
+                        className="absolute inset-0"
+                        animate={{
+                            background: [
+                                "radial-gradient(ellipse 60% 80% at 15% 50%, rgba(34,197,94,0.1) 0%, transparent 55%)",
+                                "radial-gradient(ellipse 60% 80% at 85% 50%, rgba(16,185,129,0.1) 0%, transparent 55%)",
+                                "radial-gradient(ellipse 60% 80% at 50% 85%, rgba(132,204,22,0.08) 0%, transparent 55%)",
+                                "radial-gradient(ellipse 60% 80% at 15% 50%, rgba(34,197,94,0.1) 0%, transparent 55%)",
+                            ],
+                        }}
+                        transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+                    />
+                    <div className="absolute inset-0 opacity-20 mix-blend-overlay" style={{ backgroundImage: "url('https://grainy-gradients.vercel.app/noise.svg')" }} />
+                    <div className="absolute inset-0 opacity-[0.07]" style={{
+                        backgroundImage: "linear-gradient(rgba(34,197,94,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(34,197,94,0.5) 1px, transparent 1px)",
+                        backgroundSize: "60px 60px",
+                    }} />
+                </div>
+
+                {/* ── TOP BAR ───────────────────────────────────── */}
                 <motion.div
-                    animate={{
-                        rotate: [0, 360],
-                        scale: [1, 1.2, 1]
-                    }}
-                    transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                    }}
+                    initial={{ opacity: 0, y: -16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: 0.2 }}
+                    className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-8 py-4 border-b border-white/4"
+                    style={{ backdropFilter: "blur(12px)", background: "rgba(2,9,6,0.6)" }}
                 >
-                    <CheckCircle className="w-5 h-5 text-green-400" />
-                </motion.div>
-                <span className="text-sm font-bold text-green-300">Launch Successful!</span>
-                <Sparkles className="w-4 h-4 text-green-400" />
-            </motion.div>
-
-            {/* Main Content Area */}
-            <div className="relative h-full flex items-center justify-center px-8 py-20">
-                <div className="w-full max-w-7xl mx-auto h-full flex items-center justify-between gap-12">
-                    {/* Left Side - Image Showcase */}
-                    <div className="flex-1 h-full flex flex-col justify-center">
-                        <AnimatePresence initial={false} custom={direction} mode="wait">
-                            <motion.div
-                                key={currentIndex}
-                                custom={direction}
-                                variants={slideVariants}
-                                initial="enter"
-                                animate="center"
-                                exit="exit"
-                                transition={{
-                                    x: { type: "spring", stiffness: 300, damping: 30 },
-                                    opacity: { duration: 0.3 },
-                                    scale: { duration: 0.3 },
-                                }}
-                                className="relative w-full h-[70vh] rounded-3xl overflow-hidden shadow-2xl shadow-black/50 border border-white/10 bg-neutral-900/50"
-                            >
-                                <img
-                                    src={currentItem.path}
-                                    alt={currentItem.name}
-                                    className="w-full h-full object-contain"
-                                />
-
-                                {/* Image Overlay Gradient */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-                            </motion.div>
-                        </AnimatePresence>
+                    <div className="flex items-center gap-4">
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-green-500/30 blur-xl rounded-full" />
+                            <img
+                                src="https://cdn.bospnd.balochistan.gov.pk/assets/gob-logo.png"
+                                alt="GoB"
+                                className="relative object-contain drop-shadow-[0_0_16px_rgba(34,197,94,0.5)]"
+                                style={{ width: "clamp(2.2rem, 4vmin, 3.5rem)", height: "clamp(2.2rem, 4vmin, 3.5rem)" }}
+                            />
+                        </div>
+                        <div>
+                            <p className="font-bold text-white uppercase tracking-[0.08em]" style={{ fontSize: "clamp(0.75rem, 1.3vw, 1.15rem)" }}>
+                                Bureau of Statistics
+                            </p>
+                            <p className="text-green-400/70 uppercase tracking-[0.15em]" style={{ fontSize: "clamp(0.45rem, 0.75vw, 0.65rem)" }}>
+                                Planning &amp; Development Dept · Govt of Balochistan
+                            </p>
+                        </div>
                     </div>
 
-                    {/* Right Side - Info Panel */}
-                    <div className="flex-1 h-full flex flex-col justify-center max-w-xl">
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key={currentIndex}
-                                initial={{ opacity: 0, x: 50 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -50 }}
-                                transition={{ duration: 0.5 }}
-                                className="space-y-8"
-                            >
-                                {/* Type Badge */}
+                    <div className="flex items-center gap-2.5 px-5 py-2 rounded-full bg-green-500/10 border border-green-500/20">
+                        <motion.div
+                            animate={{ scale: [1, 1.3, 1] }}
+                            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                            className="w-2 h-2 rounded-full bg-green-400"
+                            style={{ boxShadow: "0 0 8px rgba(34,197,94,0.8)" }}
+                        />
+                        <span className="font-semibold text-green-300 uppercase tracking-[0.18em]" style={{ fontSize: "clamp(0.5rem, 0.85vw, 0.75rem)" }}>
+                            Launch Successful
+                        </span>
+                        <Sparkles className="text-green-500/60" style={{ width: "clamp(0.7rem, 1vw, 0.9rem)", height: "clamp(0.7rem, 1vw, 0.9rem)" }} />
+                    </div>
+                </motion.div>
+
+                {/* ── MAIN CONTENT ──────────────────────────────── */}
+                <div className="relative h-full flex items-center justify-center pt-20 pb-16 px-8">
+                    <div className="w-full max-w-[1700px] h-full flex items-center gap-10 lg:gap-16">
+
+                        {/* LEFT — image */}
+                        <div className="flex-1 h-full flex flex-col justify-center min-w-0 relative">
+                            <AnimatePresence initial={false} custom={dir} mode="wait">
                                 <motion.div
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-                                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-xl border border-green-500/30"
+                                    key={idx}
+                                    custom={dir}
+                                    variants={slideVars}
+                                    initial="enter"
+                                    animate="center"
+                                    exit="exit"
+                                    transition={{ x: { type: "spring", stiffness: 300, damping: 30 }, opacity: { duration: 0.25 }, scale: { duration: 0.25 } }}
+                                    className="relative w-full overflow-hidden"
+                                    style={{
+                                        height: "clamp(320px, 60vh, 820px)",
+                                        borderRadius: "clamp(1rem, 2vmin, 2rem)",
+                                        border: "1px solid rgba(255,255,255,0.06)",
+                                        background: "rgba(5,20,12,0.6)",
+                                        boxShadow: "0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(34,197,94,0.06)",
+                                    }}
                                 >
-                                    {currentItem.type === "publication" ? (
-                                        <>
-                                            <FileText className="w-4 h-4 text-green-400" />
-                                            <span className="text-xs font-bold uppercase tracking-wider text-green-300">Publication</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <LayoutDashboard className="w-4 h-4 text-green-400" />
-                                            <span className="text-xs font-bold uppercase tracking-wider text-green-300">Dashboard</span>
-                                        </>
-                                    )}
+                                    <img
+                                        src={item.previewPath}
+                                        alt={item.name}
+                                        className="w-full h-full object-contain"
+                                    />
+                                    <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(2,9,6,0.7) 0%, transparent 35%)" }} />
+
+                                    {/* Type badge on image */}
+                                    <div className="absolute top-4 left-4">
+                                        <div className="flex items-center gap-2 px-4 py-1.5 rounded-full backdrop-blur-xl border border-white/10 bg-black/40">
+                                            {item.type === "publication"
+                                                ? <FileText className="text-green-400" style={{ width: "clamp(0.75rem, 1.1vw, 1rem)", height: "clamp(0.75rem, 1.1vw, 1rem)" }} />
+                                                : <LayoutDashboard className="text-green-400" style={{ width: "clamp(0.75rem, 1.1vw, 1rem)", height: "clamp(0.75rem, 1.1vw, 1rem)" }} />
+                                            }
+                                            <span className="text-white/70 uppercase tracking-wider font-semibold" style={{ fontSize: "clamp(0.5rem, 0.8vw, 0.72rem)" }}>
+                                                {item.type}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </motion.div>
+                            </AnimatePresence>
+                        </div>
 
-                                {/* Title */}
-                                <motion.h2
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.3 }}
-                                    className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/60 leading-tight"
-                                >
-                                    {currentItem.name}
-                                </motion.h2>
-
-                                {/* Description */}
-                                <motion.p
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.4 }}
-                                    className="text-lg text-neutral-300 leading-relaxed"
-                                >
-                                    {currentItem.description}
-                                </motion.p>
-
-                                {/* Action Buttons */}
+                        {/* RIGHT — info */}
+                        <div className="shrink-0 flex flex-col justify-center" style={{ width: "clamp(260px, 36%, 580px)" }}>
+                            <AnimatePresence mode="wait">
                                 <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.5 }}
+                                    key={idx}
+                                    initial={{ opacity: 0, x: 40, filter: "blur(8px)" }}
+                                    animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                                    exit={{ opacity: 0, x: -40, filter: "blur(8px)" }}
+                                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                                    className="flex flex-col gap-6"
                                 >
-                                    {currentItem.type === "publication" ? (
+                                    {/* Index */}
+                                    <div className="flex items-center gap-3">
+                                        <span className="font-bold text-green-400 tabular-nums font-mono" style={{ fontSize: "clamp(0.9rem, 1.5vw, 1.4rem)" }}>
+                                            {String(idx + 1).padStart(2, "0")}
+                                        </span>
+                                        <div className="h-px flex-1 bg-green-500/20" />
+                                        <span className="text-neutral-600 tabular-nums font-mono" style={{ fontSize: "clamp(0.7rem, 1vw, 0.9rem)" }}>
+                                            {String(allItems.length).padStart(2, "0")}
+                                        </span>
+                                    </div>
+
+                                    {/* Title */}
+                                    <h2
+                                        className="font-bold leading-tight text-transparent bg-clip-text bg-linear-to-b from-white to-white/60"
+                                        style={{ fontSize: "clamp(1.4rem, 2.9vw, 3.4rem)" }}
+                                    >
+                                        {item.name}
+                                    </h2>
+
+                                    {/* Description */}
+                                    <p className="text-neutral-400 leading-relaxed" style={{ fontSize: "clamp(0.78rem, 1.25vw, 1.2rem)" }}>
+                                        {item.description}
+                                    </p>
+
+                                    {/* Action */}
+                                    {item.type === "publication" ? (
                                         <button
-                                            disabled
-                                            className="group flex items-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 opacity-50 cursor-not-allowed transition-all duration-300 w-full"
+                                            onClick={() => setPdfItem(item)}
+                                            className="group relative flex items-center justify-center gap-3 overflow-hidden rounded-2xl font-semibold transition-all duration-300 hover:scale-[1.02]"
+                                            style={{
+                                                padding: "clamp(0.8rem, 1.3vw, 1.1rem) clamp(1.5rem, 2.5vw, 2rem)",
+                                                fontSize: "clamp(0.78rem, 1.2vw, 1.1rem)",
+                                                background: "linear-gradient(135deg, #22c55e, #10b981)",
+                                                boxShadow: "0 8px 40px rgba(34,197,94,0.35), 0 2px 8px rgba(0,0,0,0.3)",
+                                            }}
                                         >
-                                            <Download className="w-5 h-5" />
-                                            <span className="font-semibold">Download</span>
+                                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: "linear-gradient(135deg, #16a34a, #059669)" }} />
+                                            <BookOpen className="relative z-10" style={{ width: "clamp(0.9rem, 1.3vw, 1.2rem)", height: "clamp(0.9rem, 1.3vw, 1.2rem)" }} />
+                                            <span className="relative z-10">View Publication</span>
                                         </button>
                                     ) : (
                                         <a
-                                            href={currentItem.link}
+                                            href={item.link}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="group flex items-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 transition-all duration-300 shadow-lg shadow-green-500/30 hover:shadow-green-500/50 hover:scale-105"
+                                            className="group relative flex items-center justify-center gap-3 overflow-hidden rounded-2xl font-semibold transition-all duration-300 hover:scale-[1.02]"
+                                            style={{
+                                                padding: "clamp(0.8rem, 1.3vw, 1.1rem) clamp(1.5rem, 2.5vw, 2rem)",
+                                                fontSize: "clamp(0.78rem, 1.2vw, 1.1rem)",
+                                                background: "linear-gradient(135deg, #22c55e, #10b981)",
+                                                boxShadow: "0 8px 40px rgba(34,197,94,0.35), 0 2px 8px rgba(0,0,0,0.3)",
+                                            }}
                                         >
-                                            <ExternalLink className="w-5 h-5" />
-                                            <span className="font-semibold">Visit Dashboard</span>
+                                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: "linear-gradient(135deg, #16a34a, #059669)" }} />
+                                            <ExternalLink className="relative z-10" style={{ width: "clamp(0.9rem, 1.3vw, 1.2rem)", height: "clamp(0.9rem, 1.3vw, 1.2rem)" }} />
+                                            <span className="relative z-10">Open Dashboard</span>
                                         </a>
                                     )}
-                                </motion.div>
 
-                                {/* Progress Indicator */}
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.6 }}
-                                    className="space-y-3"
-                                >
-                                    <div className="flex items-center gap-2 text-sm text-neutral-500">
-                                        <span>{currentIndex + 1}</span>
-                                        <span>/</span>
-                                        <span>{allItems.length}</span>
-                                    </div>
-
-                                    <div className="flex gap-2">
-                                        {allItems.map((_, index) => (
+                                    {/* Progress dots */}
+                                    <div className="flex gap-2 items-center">
+                                        {allItems.map((_, i) => (
                                             <button
-                                                key={index}
-                                                onClick={() => {
-                                                    setDirection(index > currentIndex ? 1 : -1);
-                                                    setCurrentIndex(index);
-                                                    setIsAutoPlaying(false);
-                                                }}
-                                                className="group relative h-1 flex-1 bg-white/10 rounded-full overflow-hidden"
+                                                key={i}
+                                                onClick={() => { setDir(i > idx ? 1 : -1); setIdx(i); setAutoPlay(false); }}
+                                                className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-white/8 transition-all duration-200 hover:bg-white/15"
                                             >
                                                 <motion.div
-                                                    className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full"
+                                                    className="absolute inset-0 rounded-full bg-linear-to-r from-green-400 to-emerald-500 origin-left"
                                                     initial={false}
-                                                    animate={{
-                                                        scaleX: index === currentIndex ? 1 : 0,
-                                                    }}
-                                                    transition={{
-                                                        duration: index === currentIndex && isAutoPlaying ? 5 : 0.3,
-                                                        ease: index === currentIndex && isAutoPlaying ? "linear" : "easeOut"
-                                                    }}
-                                                    style={{ transformOrigin: "left" }}
+                                                    animate={{ scaleX: i === idx ? 1 : 0 }}
+                                                    transition={{ duration: i === idx && autoPlay ? 6 : 0.25, ease: i === idx && autoPlay ? "linear" : "easeOut" }}
                                                 />
                                             </button>
                                         ))}
                                     </div>
                                 </motion.div>
-                            </motion.div>
-                        </AnimatePresence>
+                            </AnimatePresence>
+                        </div>
                     </div>
                 </div>
+
+                {/* ── NAV ARROWS ────────────────────────────────── */}
+                {[
+                    { side: "left", icon: ChevronLeft, fn: prev, pos: "left-4" },
+                    { side: "right", icon: ChevronRight, fn: next, pos: "right-4" },
+                ].map(({ side, icon: Icon, fn, pos }) => (
+                    <button
+                        key={side}
+                        onClick={fn}
+                        className={`absolute ${pos} top-1/2 -translate-y-1/2 z-20 flex items-center justify-center rounded-full border border-white/8 bg-black/50 backdrop-blur-xl transition-all duration-300 hover:border-green-500/40 hover:bg-black/70 hover:scale-110 group`}
+                        style={{ padding: "clamp(0.7rem, 1.3vw, 1.2rem)" }}
+                    >
+                        <Icon
+                            className="text-neutral-500 group-hover:text-green-400 transition-colors"
+                            style={{ width: "clamp(1.2rem, 1.8vw, 1.8rem)", height: "clamp(1.2rem, 1.8vw, 1.8rem)" }}
+                        />
+                    </button>
+                ))}
+
+                {/* ── BOTTOM BAR ────────────────────────────────── */}
+                <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.7 }}
+                    className="absolute bottom-0 left-0 right-0 z-20 flex items-center justify-center gap-3 py-3.5 border-t border-white/4"
+                    style={{ backdropFilter: "blur(12px)", background: "rgba(2,9,6,0.6)" }}
+                >
+                    <Sparkles className="text-green-600/50" style={{ width: "clamp(0.7rem, 0.9vw, 0.85rem)", height: "clamp(0.7rem, 0.9vw, 0.85rem)" }} />
+                    <span className="text-neutral-500 uppercase tracking-[0.2em] font-medium" style={{ fontSize: "clamp(0.48rem, 0.75vw, 0.7rem)" }}>
+                        Dashboard and Publications Launch Event · Bureau of Statistics · Govt of Balochistan
+                    </span>
+                    <Sparkles className="text-green-600/50" style={{ width: "clamp(0.7rem, 0.9vw, 0.85rem)", height: "clamp(0.7rem, 0.9vw, 0.85rem)" }} />
+                </motion.div>
             </div>
-
-            {/* Navigation Buttons */}
-            <button
-                onClick={navigatePrev}
-                className="absolute left-6 top-1/2 -translate-y-1/2 z-20 p-4 rounded-full bg-neutral-900/80 backdrop-blur-xl border border-white/10 hover:border-green-500/50 hover:bg-neutral-900 transition-all duration-300 shadow-lg hover:scale-110 group"
-            >
-                <ChevronLeft className="w-6 h-6 text-neutral-400 group-hover:text-green-400 transition-colors" />
-            </button>
-
-            <button
-                onClick={navigateNext}
-                className="absolute right-6 top-1/2 -translate-y-1/2 z-20 p-4 rounded-full bg-neutral-900/80 backdrop-blur-xl border border-white/10 hover:border-green-500/50 hover:bg-neutral-900 transition-all duration-300 shadow-lg hover:scale-110 group"
-            >
-                <ChevronRight className="w-6 h-6 text-neutral-400 group-hover:text-green-400 transition-colors" />
-            </button>
-
-            {/* Bottom Info Bar */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
-                className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-900/80 backdrop-blur-xl border border-white/10"
-            >
-                <Sparkles className="w-4 h-4 text-green-400" />
-                <span className="text-xs font-medium text-neutral-300 uppercase tracking-wider">
-                    Dashboard and Publications Launch Event
-                </span>
-                <Sparkles className="w-4 h-4 text-green-400" />
-            </motion.div>
-        </div>
+        </>
     );
 }
