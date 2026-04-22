@@ -134,67 +134,77 @@ export default function LaunchPage() {
                 <div className="absolute bottom-0 right-0 w-64 h-64 opacity-15" style={{ background: "radial-gradient(circle at 100% 100%, rgba(16,185,129,0.4) 0%, transparent 60%)" }} />
             </div>
 
-            {/* ── HEADER ──────────────────────────────────────── */}
+            {/* ── HEADER BAR ──────────────────────────────────── */}
             <motion.header
                 initial={{ opacity: 0, y: -24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-                className="relative z-10 flex flex-col items-center pt-8 pb-2 px-6 shrink-0"
+                className="relative z-10 flex items-center justify-between px-8 py-4 shrink-0 border-b border-white/[0.05]"
+                style={{ background: "rgba(3,3,3,0.7)", backdropFilter: "blur(16px)" }}
             >
-                {/* Logo */}
-                <div className="relative mb-4">
-                    <div className="absolute inset-0 bg-green-400/20 blur-3xl rounded-full scale-150" />
-                    <img
-                        src="https://cdn.bospnd.balochistan.gov.pk/assets/gob-logo.png"
-                        alt="Government of Balochistan"
-                        className="relative object-contain drop-shadow-[0_0_32px_rgba(34,197,94,0.5)]"
-                        style={{ width: "clamp(3.5rem, 7vmin, 6rem)", height: "clamp(3.5rem, 7vmin, 6rem)" }}
-                    />
+                {/* Left — Logo + dept name */}
+                <div className="flex items-center gap-4">
+                    <div className="relative shrink-0">
+                        <div className="absolute inset-0 bg-green-400/25 blur-2xl rounded-full" />
+                        <img
+                            src="https://cdn.bospnd.balochistan.gov.pk/assets/gob-logo.png"
+                            alt="Government of Balochistan"
+                            className="relative object-contain drop-shadow-[0_0_20px_rgba(34,197,94,0.5)]"
+                            style={{ width: "clamp(2.8rem, 5.5vmin, 5rem)", height: "clamp(2.8rem, 5.5vmin, 5rem)" }}
+                        />
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                        <motion.p
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.3, duration: 0.7 }}
+                            className="text-neutral-400 uppercase tracking-[0.25em] font-medium"
+                            style={{ fontSize: "clamp(0.48rem, 0.75vw, 0.68rem)" }}
+                        >
+                            Government of Balochistan
+                        </motion.p>
+                        <motion.h1
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.45, duration: 0.7 }}
+                            className="font-bold text-white uppercase leading-tight"
+                            style={{ fontSize: "clamp(1rem, 2vw, 2rem)", letterSpacing: "0.05em", textShadow: "0 0 30px rgba(34,197,94,0.2)" }}
+                        >
+                            Bureau of Statistics
+                        </motion.h1>
+                        <motion.p
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.6, duration: 0.7 }}
+                            className="text-green-400 font-semibold uppercase tracking-[0.18em]"
+                            style={{ fontSize: "clamp(0.52rem, 0.9vw, 0.82rem)" }}
+                        >
+                            Planning &amp; Development Department
+                        </motion.p>
+                    </div>
                 </div>
 
-                {/* Name stack */}
-                <div className="flex flex-col items-center gap-1 text-center">
-                    <motion.h1
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.25, duration: 0.7 }}
-                        className="font-bold text-white uppercase"
-                        style={{ fontSize: "clamp(1.4rem, 3.5vw, 3.8rem)", letterSpacing: "0.06em", textShadow: "0 0 40px rgba(34,197,94,0.25)" }}
-                    >
-                        Bureau of Statistics
-                    </motion.h1>
-
+                {/* Right — Event label */}
+                <motion.div
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.7, duration: 0.7 }}
+                    className="flex items-center gap-2.5 px-5 py-2 rounded-full border border-green-500/20 bg-green-500/8"
+                >
                     <motion.div
-                        initial={{ scaleX: 0, opacity: 0 }}
-                        animate={{ scaleX: 1, opacity: 0.6 }}
-                        transition={{ delay: 0.45, duration: 0.7 }}
-                        className="h-px w-20 rounded-full bg-gradient-to-r from-transparent via-green-500 to-transparent"
+                        animate={{ scale: [1, 1.4, 1], opacity: [0.6, 1, 0.6] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                        className="w-2 h-2 rounded-full bg-green-400"
+                        style={{ boxShadow: "0 0 8px rgba(34,197,94,0.9)" }}
                     />
-
-                    <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.6, duration: 0.7 }}
-                        className="text-green-400 font-semibold uppercase tracking-[0.22em]"
-                        style={{ fontSize: "clamp(0.55rem, 1.1vw, 0.95rem)" }}
-                    >
-                        Planning &amp; Development Department
-                    </motion.p>
-
-                    <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.75, duration: 0.7 }}
-                        className="text-neutral-500 uppercase tracking-[0.28em] font-medium"
-                        style={{ fontSize: "clamp(0.5rem, 0.8vw, 0.75rem)" }}
-                    >
-                        Government of Balochistan
-                    </motion.p>
-                </div>
+                    <span className="text-green-300/80 uppercase tracking-[0.18em] font-semibold" style={{ fontSize: "clamp(0.48rem, 0.8vw, 0.72rem)" }}>
+                        Launch Event
+                    </span>
+                </motion.div>
             </motion.header>
 
             {/* ── MAIN INTERACTION ────────────────────────────── */}
-            <div className="relative z-20 flex-1 flex flex-col items-center justify-center gap-6 min-h-0">
+            <div className="relative z-20 flex-1 flex flex-col items-center justify-center gap-6 min-h-0 -translate-y-12">
 
                 {/* Countdown chip */}
                 <div style={{ height: "clamp(2.2rem, 4vw, 3.5rem)" }} className="flex items-center justify-center">
