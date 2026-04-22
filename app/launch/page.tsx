@@ -67,7 +67,7 @@ export default function LaunchPage() {
             confetti({ particleCount: 80, spread: 120, origin: { y: 0.3 }, colors: ["#22c55e", "#ffffff", "#84cc16"], startVelocity: 40, ticks: 200 });
         }, 900);
 
-        setTimeout(() => router.push("/showcase"), 9000);
+        setTimeout(() => router.push("/showcase"), 5000);
     }, [router]);
 
     const startHolding = useCallback(() => {
